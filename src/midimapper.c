@@ -43,7 +43,7 @@ void done(void) {
     }
     if (MidiBase) {
         CloseLibrary(MidiBase);
-        MidiBase=0;
+        MidiBase = 0;
     }
 }
 

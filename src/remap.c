@@ -47,9 +47,6 @@ static Directive dirs[] = {
     { "control:",        0, &parseController },
     { "ctrlrange:",      0, &parseCtrlRange },
     { "ctrlinit:",       0, &parseCtrlInit },
-    { 0,                 0, 0}
-};
-
 /*
     { "modulation:",     0, 0 },
     { "breath:",         0, 0 },
@@ -60,9 +57,9 @@ static Directive dirs[] = {
     { "attacktime:",     0, 0 },
     { "releasetime:",    0, 0 },
 
-    { "portamentotime:", 0 },
-    { "portamento:",     0 },
-    { "portamentoctrl:", 0 },
+    { "portamento:",     0, 0 },
+    { "portamentoctrl:", 0, 0 },
+    { "portamentotime:", 0, 0 },
 
     { "dataentrylsb:",   0, 0 },
     { "volume:",         0, 0 },
@@ -73,6 +70,9 @@ static Directive dirs[] = {
     { "resonance:",      0, 0 },
     { "brightness:",     0, 0 },
 */
+    { 0,                 0, 0}
+};
+
 
 /**************************************************************************/
 
@@ -80,7 +80,7 @@ uint32 hashString(const char* string) {
     /* generates an id hash */
     uint32 hash = 0;
     uint32 mask = 0x80000000;
-    uint8* p = (uint8*)string;
+    uint8* p    = (uint8*)string;
     while (*p) {
         hash = (hash << 1) | ((hash & mask) ? 1 : 0);
         hash ^= (uint32) *p++;
@@ -89,7 +89,7 @@ uint32 hashString(const char* string) {
 }
 
 void initDirectives(void) {
-    sint32 i=0;
+    sint32 i = 0;
     while (dirs[i].name) {
         dirs[i].id = hashString(dirs[i].name);
         //printf("%s : 0x%08X\n", dirs[i].name, (unsigned)(dirs[i].id));
@@ -98,7 +98,7 @@ void initDirectives(void) {
 }
 
 bool handleDirective(uint32 id, FILE* file, char* buffer, sint32 in) {
-    sint32 i=0;
+    sint32 i = 0;
     while (dirs[i].name) {
         if (dirs[i].id == id) {
             //printf("%s\n", dirs[i].name);
@@ -474,9 +474,9 @@ void parseProgTranspose(FILE* file, char* buffer, sint32 in) {
 /**************************************************************************/
 
 void parseNotemap(FILE* file, char* buffer, sint32 in) {
-    Table* table=0;
-    sint32 progNum1=0;
-    sint32 progNum2=127;
+    Table* table    = 0;
+    sint32 progNum1 = 0;
+    sint32 progNum2 = 127;
     bool   range = false;
     readWord(file, buffer);
     if (sscanf(buffer, "%ld", &progNum1) == 1) {
@@ -488,7 +488,7 @@ void parseNotemap(FILE* file, char* buffer, sint32 in) {
         if ( (table = findTable(buffer)) ) {
             if (range) {
                 sint32 i;
-                for (i=progNum1; i<=progNum2; i++) {
+                for (i = progNum1; i <= progNum2; i++) {
                     channels[in - 1].noteMap[i] = table->data;
                 }
                 return;
@@ -510,7 +510,7 @@ void parseNotemap(FILE* file, char* buffer, sint32 in) {
 /**************************************************************************/
 
 void parseVelocity(FILE* file, char* buffer, sint32 in) {
-    Table* table=0;
+    Table* table = 0;
     if (readWord(file, buffer)) {
         if (table = findTable(buffer)) {
             channels[in - 1].velocityMap = table->data;
@@ -523,7 +523,7 @@ void parseVelocity(FILE* file, char* buffer, sint32 in) {
 /**************************************************************************/
 
 void parseController(FILE* file, char* buffer, sint32 in) {
-    Table* table=0;
+    Table* table = 0;
     if (readWord(file, buffer)) {
         if (table = findTable(buffer)) {
             channels[in - 1].controlMap = table->data;
@@ -536,8 +536,8 @@ void parseController(FILE* file, char* buffer, sint32 in) {
 /**************************************************************************/
 
 void parseCtrlRange(FILE* file, char* buffer, sint32 in) {
-    Table* table=0;
-    sint32 ctrlNum=0;
+    Table* table   = 0;
+    sint32 ctrlNum = 0;
     if (readWord(file, buffer)) {
         if (sscanf(buffer, "%ld", &ctrlNum)==1) {
             if (readWord(file, buffer)) {
@@ -554,7 +554,7 @@ void parseCtrlRange(FILE* file, char* buffer, sint32 in) {
 /**************************************************************************/
 
 void parseCtrlInit(FILE* file, char* buffer, sint32 in) {
-    Table* table=0;
+    Table* table = 0;
     sint32 ctrlNum;
     sint32 ctrlVal;
     if (readWord(file, buffer)) {
@@ -595,7 +595,7 @@ void parseCtrlInit(FILE* file, char* buffer, sint32 in) {
 
 bool loadSetup(const char* configFile) {
     initDirectives();
-    /* allocate the channels */\
+    /* allocate the channels */
     if (!(channels = allocChannels(tableList))) {
         return false;
     }
@@ -608,7 +608,7 @@ void freeSetup(void) {
     /* frees the entire list of tables */
     Table* t;
     Table* next;
-    int i=0;
+    int    i = 0;
     puts("\nfreeSetup()...");
     for (t = tableList; t; i++) {
         next = t->next;
